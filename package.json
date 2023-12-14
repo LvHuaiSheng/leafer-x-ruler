@@ -1,0 +1,58 @@
+{
+  "name": "leafer-x-ruler",
+  "version": "1.0.0",
+  "author": "LvHuaiSheng <lvhuaisheng_k@163.com>",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.esm.js",
+  "exports": {
+    "import": "./dist/index.esm.js",
+    "require": "./dist/index.cjs"
+  },
+  "types": "types/index.d.ts",
+  "files": [
+    "src",
+    "types",
+    "dev",
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LvHuaiSheng/leafer-x-ruler"
+  },
+  "homepage": "https://github.com/LvHuaiSheng/leafer-x-ruler",
+  "bugs": "https://github.com/LvHuaiSheng/leafer-x-ruler/issues",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development rollup -c -w",
+    "build": "cross-env PLATFORM=all rollup -c",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-html": "^1.0.3",
+    "@rollup/plugin-multi-entry": "^6.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.55.0",
+    "jsdom": "^22.1.0",
+    "leafer-ui": "1.0.0-rc.8",
+    "rollup": "^3.29.4",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-serve": "^2.0.3",
+    "rollup-plugin-string": "^3.0.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
+    "vite": "^4.5.1",
+    "vitest": "^0.34.6"
+  },
+  "dependencies": {
+    "@leafer-ui/core": "1.0.0-rc.8",
+    "@leafer-ui/interface": "1.0.0-rc.8",
+    "@leafer-in/editor": "1.0.0-rc.8"
+  }
+}

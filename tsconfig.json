@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "target": "ES2015",
+        "module": "ES2015",
+        "lib": ["ESNext","DOM"],
+        "experimentalDecorators": true,
+        "allowJs": false,
+        "sourceMap": true,
+        "removeComments": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "strictNullChecks": false,
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "baseUrl": "./",
+        "outDir": "dist",
+    },
+    "exclude": [
+        "node_modules",
+        "**/node_modules/**",
+        "dist",
+        "dev",
+        "**/dist/**",
+        "**/lib/**",
+        "**/scripts/**",
+        "**/types/**"
+    ],
+    "ts-node": {
+        "files": true,
+        "compilerOptions": {
+            "esModuleInterop": true
+        }
+    }
+}
