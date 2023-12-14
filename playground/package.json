@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "leafer-ui": "^1.0.0-rc.8",
     "@leafer-in/editor": "^1.0.0-rc.8",
     "vue": "^3.3.11"
   },

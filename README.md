@@ -50,7 +50,6 @@ ruler.changeTheme('custom1')
 
 // 启用、禁用  
 ruler.enabled = false
-console.log(pdf.outline);  
 ```
 
 ## 内置属性

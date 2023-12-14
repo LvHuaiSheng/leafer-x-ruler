@@ -164,6 +164,9 @@ export class Ruler {
 
   private render({ ctx }: { ctx: ICanvasContext2D }) {
 
+    // 设置画布的矩阵信息（默认会带上屏幕像素比），用于解决屏幕像素比的问题
+    this.rulerLeafer.canvas.setWorld({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 })
+
     const { worldTransform } = this.app.tree
     const vpt = [worldTransform.a, worldTransform.b, worldTransform.c, worldTransform.d, worldTransform.e, worldTransform.f]
     // 计算元素矩形
