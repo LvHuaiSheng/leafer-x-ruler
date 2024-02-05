@@ -1,7 +1,9 @@
 {
   "name": "leafer-x-ruler",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "description": "Leafer ui ruler line plugin",
   "author": "LvHuaiSheng <lvhuaisheng_k@163.com>",
+  "keywords": ["leafer-ui","leafer-ui-plugins","typescript"],
   "license": "MIT",
   "type": "module",
   "main": "dist/index.esm.js",
@@ -18,7 +20,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/LvHuaiSheng/leafer-x-ruler"
+    "url": "https://github.com/LvHuaiSheng/leafer-x-ruler.git"
   },
   "homepage": "https://github.com/LvHuaiSheng/leafer-x-ruler",
   "bugs": "https://github.com/LvHuaiSheng/leafer-x-ruler/issues",
@@ -37,9 +39,9 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "cross-env": "^7.0.3",
-    "eslint": "^8.55.0",
+    "eslint": "^8.56.0",
     "jsdom": "^22.1.0",
-    "leafer-ui": "1.0.0-rc.8",
+    "leafer-ui": "^1.0.0-rc.12",
     "rollup": "^3.29.4",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-livereload": "^2.0.5",
@@ -51,8 +53,8 @@
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "@leafer-ui/core": "1.0.0-rc.8",
-    "@leafer-ui/interface": "1.0.0-rc.8",
-    "@leafer-in/editor": "1.0.0-rc.8"
+    "@leafer-in/editor": "^1.0.0-rc.12",
+    "@leafer-ui/core": "^1.0.0-rc.12",
+    "@leafer-ui/interface": "^1.0.0-rc.12"
   }
 }

@@ -1,10 +1,11 @@
 <script setup lang='ts'>
 
-import { App, Rect } from 'leafer-ui'
+import { App, Rect,Text ,Canvas, Line} from 'leafer-ui'
 import '@leafer-in/editor'
 import { Ruler } from '../../src'
 import { onMounted } from 'vue'
 import { EditorEvent } from '@leafer-in/editor'
+// import { Canvas, Line } from '@leafer-ui/core'
 
 let ruler
 
@@ -24,7 +25,7 @@ onMounted(() => {
     ground: { type: 'draw' },
     tree: {},
     editor: {},
-    sky: { type: 'draw' }
+    sky: { type: 'draw', usePartRender: false }
   })
   ruler = new Ruler(app)
   // 添加自定义主题
@@ -48,10 +49,8 @@ onMounted(() => {
       fill: getRandomColor(),
       editable: true
     })
-
     app.tree.add(rect)
   }
-
 })
 
 /**

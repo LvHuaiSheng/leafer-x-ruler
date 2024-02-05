@@ -142,7 +142,7 @@ export class Ruler {
       }, 0)
     } else {
       this.app.tree.off(RenderEvent.AFTER, this.forceRender)
-      this.rulerLeafer.forceFullRender()
+      this.rulerLeafer.forceRender(this.rulerLeafer.canvas.bounds)
     }
   }
 
@@ -171,13 +171,14 @@ export class Ruler {
     const vpt = [worldTransform.a, worldTransform.b, worldTransform.c, worldTransform.d, worldTransform.e, worldTransform.f]
     // 计算元素矩形
     this.calcObjectRect()
-    // 绘制尺子
+    // 绘制水平尺子
     this.draw({
       ctx,
       isHorizontal: true,
       rulerLength: this.getSize().width,
       startCalibration: -(vpt[4] / vpt[0])
     })
+    // 绘制垂直尺子
     this.draw({
       ctx,
       isHorizontal: false,
