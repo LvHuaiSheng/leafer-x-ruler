@@ -4,7 +4,7 @@
 
 ## show
 
-![show转存失败，建议直接上传图片文件](<转存失败，建议直接上传图片文件 show.png>)
+![cover](https://github.com/LvHuaiSheng/leafer-x-ruler/blob/master/playground/src/assets/cover.png?raw=true)
 
 ## 运行
 
