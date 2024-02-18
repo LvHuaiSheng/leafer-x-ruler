@@ -1,5 +1,6 @@
 import { ICanvasContext2D, IUI } from '@leafer-ui/interface'
 import { App, Leafer, RenderEvent } from '@leafer-ui/core'
+import { EditorEvent } from '@leafer-in/editor'
 
 type TAxis = 'x' | 'y';
 type Rect = { left: number; top: number; width: number; height: number }
@@ -137,11 +138,13 @@ export class Ruler {
     this.config.enabled = value
     if (value) {
       this.app.tree.on(RenderEvent.AFTER, this.forceRender)
+      this.app.editor?.on(EditorEvent.SELECT,this.forceRender)
       setTimeout(() => {
         this.forceRender()
       }, 0)
     } else {
       this.app.tree.off(RenderEvent.AFTER, this.forceRender)
+      this.app.editor?.off(EditorEvent.SELECT, this.forceRender)
       this.rulerLeafer.forceRender(this.rulerLeafer.canvas.bounds)
     }
   }
