@@ -272,7 +272,7 @@ export class Ruler {
         if (rect.skip === axis) {
           return
         }
-
+        // TODO
         const [left, top, width, height] = isHorizontal
           ? [(rect.left - startCalibration) * zoom, 0, rect.width * zoom, ruleSize]
           : [0, (rect.top - startCalibration) * zoom, ruleSize, rect.height * zoom]
@@ -425,8 +425,9 @@ export class Ruler {
       this.objectRect = undefined
       return
     }
+      // TODO
     const allRect = activeObjects.reduce((rects: HighlightRect[], obj: IUI) => {
-      const bounds = obj.getBounds('box', 'world')
+      const bounds = obj.getBounds('box', this.app.tree)
       const rect: HighlightRect = { left: bounds.x, top: bounds.y, width: bounds.width, height: bounds.height }
       rects.push(rect)
       return rects
