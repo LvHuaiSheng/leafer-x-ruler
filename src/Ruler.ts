@@ -426,7 +426,7 @@ export class Ruler {
       return
     }
     const allRect = activeObjects.reduce((rects: HighlightRect[], obj: IUI) => {
-      const bounds = obj.getBounds('box', 'local')
+      const bounds = obj.getBounds('box', 'world')
       const rect: HighlightRect = { left: bounds.x, top: bounds.y, width: bounds.width, height: bounds.height }
       rects.push(rect)
       return rects
