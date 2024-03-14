@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@leafer-in/editor": "^1.0.0-rc.17",
-    "leafer-ui": "^1.0.0-rc.17",
+    "@leafer-in/editor": "^1.0.0-rc.19",
+    "leafer-ui": "^1.0.0-rc.19",
     "vue": "^3.4.3"
   },
   "devDependencies": {

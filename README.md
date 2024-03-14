@@ -51,6 +51,27 @@ ruler.changeTheme('custom1')
 // 启用、禁用  
 ruler.enabled = false
 ```
+### QA
+```js
+// 如果使用侧边栏的伸缩时标尺宽高并未同步更新，或许是因为画布的大小并未改变无法触发resize事件；如果想改变画布的大小并使标尺同步，需要自行监听窗口大小变化，并触发leafer-ui的resize事件，以下是在vue3中使用的示例： 
+<template>
+  <div ref="divRef"></div>
+</template>
+<script lang="ts" setup>
+  import {useResizeObserver} from "@vueuse/core";
+
+  const divRef = ref()
+
+  onMounted(() => {
+      useResizeObserver(divRef, (entries) => {
+        const [entry] = entries
+        const { width, height } = entry.contentRect
+        // 这步是为了触发leafer-ui的resize事件，标尺在监听到resize事件后会重新渲染
+        leafer.app.resize({ width, height })
+      })
+  })
+</script>
+```
 
 ## 内置属性
 
@@ -116,7 +137,7 @@ ruler.enabled = false
 <tr>
   <td>addTheme</td>
   <td>添加自定义主题</td>
-  <td>(string,object)</td>
+  <td>(string,ThemeOption)</td>
   <td>-</td>
 </tr>
 <tr>
@@ -138,3 +159,14 @@ ruler.enabled = false
   <td>-</td>
 </tr>
 </table>
+
+### ThemeOption
+
+```ts
+type ThemeOption = {
+  backgroundColor: string, // 背景色
+  textColor: string, // 文字颜色
+  borderColor: string, // 边框颜色
+  highlightColor: string // 高亮颜色
+}
+```

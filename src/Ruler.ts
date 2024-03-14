@@ -41,8 +41,8 @@ export interface RulerConfig {
 }
 
 export interface RulerOptions {
-  ruleSize: number; // 标尺宽高
-  fontSize: number; // 字体大小
+  ruleSize?: number; // 标尺宽高
+  fontSize?: number; // 字体大小
   themes?: Map<string, ThemeOption>; // 主题，默认存在明亮、暗黑主图
 }
 
@@ -139,9 +139,7 @@ export class Ruler {
     if (value) {
       this.app.tree.on(RenderEvent.AFTER, this.forceRender)
       this.app.editor?.on(EditorEvent.SELECT,this.forceRender)
-      setTimeout(() => {
-        this.forceRender()
-      }, 0)
+      this.forceRender()
     } else {
       this.app.tree.off(RenderEvent.AFTER, this.forceRender)
       this.app.editor?.off(EditorEvent.SELECT, this.forceRender)
@@ -151,7 +149,9 @@ export class Ruler {
 
   public forceRender() {
     if (this.enabled) {
-      this.render({ ctx: this.contextContainer })
+      setTimeout(() => {
+        this.render({ ctx: this.contextContainer })
+      }, 0)
     }
   }
 
@@ -425,7 +425,7 @@ export class Ruler {
       this.objectRect = undefined
       return
     }
-      // TODO
+
     const allRect = activeObjects.reduce((rects: HighlightRect[], obj: IUI) => {
       const bounds = obj.getBounds('box', this.app.tree)
       const rect: HighlightRect = { left: bounds.x, top: bounds.y, width: bounds.width, height: bounds.height }

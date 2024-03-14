@@ -35,10 +35,7 @@ onMounted(() => {
     borderColor: '#6f4593',
     highlightColor: 'rgba(22,93,255,0.75)'
   })
-  // 配合编辑器插件使用：在选中元素后立即渲染辅助线位置跟随
-  app.editor.on(EditorEvent.SELECT, (arg: EditorEvent) => {
-    ruler.forceRender()
-  })
+
   for (let i = 0; i < 5; i++) {
     const randomNumber = Math.random() * (300 - 50) + 50
     const rect = new Rect({
