@@ -1,12 +1,13 @@
 <script setup lang='ts'>
 
-import { App, Rect,Text ,Canvas, Line} from 'leafer-ui'
+import { App, Rect, Text, Canvas, Line, RenderEvent } from 'leafer-ui'
 import '@leafer-in/editor'
 import { Ruler } from '../../src'
-import { onMounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { EditorEvent } from '@leafer-in/editor'
 // import { Canvas, Line } from '@leafer-ui/core'
 
+let app
 let ruler
 
 // 生成随机颜色
@@ -18,9 +19,10 @@ function getRandomColor() {
   }
   return color
 }
-
+let timer = null
+const fps = ref(0)
 onMounted(() => {
-  const app = new App({
+  app = new App({
     view: 'canvasRef',
     ground: { type: 'draw' },
     tree: {},
@@ -48,6 +50,12 @@ onMounted(() => {
     })
     app.tree.add(rect)
   }
+  timer = setInterval(() => {
+    fps.value = app.FPS
+  },500)
+})
+onUnmounted(() => {
+  clearInterval(timer)
 })
 
 /**
@@ -60,6 +68,7 @@ const changeTheme = (theme) => {
 const changeEnabled = () => {
   ruler.enabled = !ruler.enabled
 }
+
 </script>
 
 <template>
@@ -70,6 +79,9 @@ const changeEnabled = () => {
       <button @click="changeTheme('dark')" class='btn'>暗黑主题</button>
       <div>
         <button @click="changeTheme('custom1')" class='btn'>自定义主题1</button>
+      </div>
+      <div>
+        <span>FPS：{{fps}}</span>
       </div>
     </div>
     <div ref='canvasRef' id='canvasRef'></div>

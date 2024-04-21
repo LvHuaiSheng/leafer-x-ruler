@@ -82,6 +82,7 @@ ruler.enabled = false
   <th>操作方式</th>
   <th>类型</th>
   <th>示例值</th>
+  <th>默认</th>
 </thead>
 <tr>
   <td>enabled</td>
@@ -89,12 +90,14 @@ ruler.enabled = false
   <td>get / set</td>
   <td>boolean</td>
   <td>true</td>
+  <td>true</td>
 </tr>
 <tr>
   <td>theme</td>
   <td>使用主题名称</td>
   <td>get / set</td>
   <td>string</td>
+  <td>dark</td>
   <td>light</td>
 </tr>
 <tr>
@@ -103,19 +106,22 @@ ruler.enabled = false
   <td>get</td>
   <td>Leafer</td>
   <td>-</td>
+  <td>-</td>
 </tr>
 <tr>
   <td>config</td>
   <td>标尺设置</td>
   <td>set</td>
-  <td>object</td>
+  <td><a href='#RulerConfig'>RulerConfig</a></td>
+  <td>-</td>
   <td>-</td>
 </tr>
 <tr>
   <td>options</td>
   <td>属性配置</td>
   <td>set</td>
-  <td>object</td>
+  <td><a href='#RulerOptions'>RulerOptions</a></td>
+  <td>-</td>
   <td>-</td>
 </tr>
 </table>
@@ -137,7 +143,7 @@ ruler.enabled = false
 <tr>
   <td>addTheme</td>
   <td>添加自定义主题</td>
-  <td>(string,ThemeOption)</td>
+  <td>(string,<a href='#themeoption'>ThemeOption</a>)</td>
   <td>-</td>
 </tr>
 <tr>
@@ -160,7 +166,31 @@ ruler.enabled = false
 </tr>
 </table>
 
-### ThemeOption
+#### RulerConfig
+
+```ts
+type RulerConfig = {
+  /**
+   * 是否启用标尺线
+   */
+  enabled: boolean
+  /**
+   * 标尺线主题，默认light，可选（light：明亮，dark：暗黑）
+   */
+  theme: string
+}
+```
+#### RulerOptions
+
+```ts
+type RulerOptions = {
+  ruleSize?: number; // 标尺宽高
+  fontSize?: number; // 字体大小
+  themes?: Map<string, ThemeOption>; // 主题，默认存在明亮（light）、暗黑（dark）主题，可覆盖
+}
+```
+
+#### ThemeOption
 
 ```ts
 type ThemeOption = {
