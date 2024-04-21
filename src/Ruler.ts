@@ -1,6 +1,6 @@
 import { ICanvasContext2D, IUI } from '@leafer-ui/interface'
-import { App, Leafer, RenderEvent } from '@leafer-ui/core'
-import { EditorEvent } from '@leafer-in/editor'
+import { App, Leafer, RenderEvent, ResizeEvent,MoveEvent, ZoomEvent } from '@leafer-ui/core'
+import { EditorEvent, EditorMoveEvent } from '@leafer-in/editor'
 
 type TAxis = 'x' | 'y';
 type Rect = { left: number; top: number; width: number; height: number }
@@ -137,13 +137,19 @@ export class Ruler {
   public set enabled(value: boolean) {
     this.config.enabled = value
     if (value) {
-      this.app.tree.on(RenderEvent.AFTER, this.forceRender)
+      this.app.tree.on(ResizeEvent.RESIZE, this.forceRender)
+      this.app.tree.on(MoveEvent.MOVE, this.forceRender)
+      this.app.tree.on(ZoomEvent.ZOOM, this.forceRender)
+      this.app.editor?.on(EditorMoveEvent.MOVE,this.forceRender)
       this.app.editor?.on(EditorEvent.SELECT,this.forceRender)
       this.forceRender()
     } else {
-      this.app.tree.off(RenderEvent.AFTER, this.forceRender)
+      this.app.tree.off(ResizeEvent.RESIZE, this.forceRender)
+      this.app.tree.off(MoveEvent.MOVE, this.forceRender)
+      this.app.tree.off(ZoomEvent.ZOOM, this.forceRender)
+      this.app.editor?.off(EditorMoveEvent.MOVE, this.forceRender)
       this.app.editor?.off(EditorEvent.SELECT, this.forceRender)
-      this.rulerLeafer.forceRender(this.rulerLeafer.canvas.bounds)
+      this.rulerLeafer.forceRender()
     }
   }
 
