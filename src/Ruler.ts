@@ -58,7 +58,6 @@ export class Ruler {
 
   private options: RulerOptions
   private config: RulerConfig
-  private resizeing:boolean = false
 
   /**
    * 选取对象矩形坐标
