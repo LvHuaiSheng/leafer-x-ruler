@@ -1,6 +1,6 @@
 import { ICanvasContext2D, IUI } from '@leafer-ui/interface'
-import { App, Leafer, RenderEvent, ResizeEvent,MoveEvent, ZoomEvent, RotateEvent } from '@leafer-ui/core'
-import { EditorEvent, EditorMoveEvent, EditorRotateEvent, EditorScaleEvent, EditorSkewEvent } from '@leafer-in/editor'
+import { App, LayoutEvent, Leafer, RenderEvent, ResizeEvent } from '@leafer-ui/core'
+import { EditorEvent } from '@leafer-in/editor'
 
 type TAxis = 'x' | 'y';
 type Rect = { left: number; top: number; width: number; height: number }
@@ -58,6 +58,7 @@ export class Ruler {
 
   private options: RulerOptions
   private config: RulerConfig
+  private resizeing:boolean = false
 
   /**
    * 选取对象矩形坐标
@@ -137,36 +138,30 @@ export class Ruler {
   public set enabled(value: boolean) {
     this.config.enabled = value
     if (value) {
-      this.app.tree.on(ResizeEvent.RESIZE, this.forceRender)
-      this.app.tree.on(MoveEvent.MOVE, this.forceRender)
-      this.app.tree.on(ZoomEvent.ZOOM, this.forceRender)
-      this.app.tree.on(RotateEvent.ROTATE, this.forceRender)
-      this.app.editor?.on(EditorMoveEvent.MOVE,this.forceRender)
+      this.app.tree.on(LayoutEvent.AFTER, this.forceRender.bind(this))
+      this.app.tree.on(ResizeEvent.RESIZE, this.resize.bind(this))
       this.app.editor?.on(EditorEvent.SELECT,this.forceRender)
-      this.app.editor?.on(EditorRotateEvent.ROTATE,this.forceRender)
-      this.app.editor?.on(EditorScaleEvent.SCALE,this.forceRender)
-      this.app.editor?.on(EditorSkewEvent.SKEW,this.forceRender)
-      this.forceRender()
+      this.resize()
     } else {
-      this.app.tree.off(ResizeEvent.RESIZE, this.forceRender)
-      this.app.tree.off(MoveEvent.MOVE, this.forceRender)
-      this.app.tree.off(ZoomEvent.ZOOM, this.forceRender)
-      this.app.tree.off(RotateEvent.ROTATE, this.forceRender)
-      this.app.editor?.off(EditorMoveEvent.MOVE, this.forceRender)
+      this.app.tree.off(RenderEvent.AFTER, this.forceRender.bind(this))
+      this.app.tree.off(ResizeEvent.RESIZE, this.resize.bind(this))
       this.app.editor?.off(EditorEvent.SELECT, this.forceRender)
-      this.app.editor?.off(EditorRotateEvent.ROTATE, this.forceRender)
-      this.app.editor?.off(EditorScaleEvent.SCALE, this.forceRender)
-      this.app.editor?.off(EditorSkewEvent.SKEW, this.forceRender)
       this.rulerLeafer.forceRender()
     }
   }
 
   public forceRender() {
     if (this.enabled) {
-      setTimeout(() => {
-        this.render({ ctx: this.contextContainer })
-      }, 0)
+      this.render({ ctx: this.contextContainer })
     }
+  }
+
+  public resize() {
+    setTimeout(() => {
+      if (this.enabled) {
+          this.render({ ctx: this.contextContainer })
+      }
+    }, 100)
   }
 
   /**
@@ -226,7 +221,7 @@ export class Ruler {
      * TODO 待官方支持手动触发app canvas渲染的方法后替换下面方法
      * 临时先这么用，不然拖动frame时标尺层画布渲染会有延迟
      */
-    this.app.tree.emit(RenderEvent.END, { renderBounds: this.app.tree.canvas.bounds })
+    // this.app.tree.emit(RenderEvent.END)
   }
 
   private draw(opt: {
