@@ -158,7 +158,7 @@ export class Ruler {
   public resize() {
     setTimeout(() => {
       if (this.enabled) {
-          this.render({ ctx: this.contextContainer })
+        this.render({ ctx: this.contextContainer })
       }
     }, 100)
   }
@@ -220,7 +220,7 @@ export class Ruler {
      * TODO 待官方支持手动触发app canvas渲染的方法后替换下面方法
      * 临时先这么用，不然拖动frame时标尺层画布渲染会有延迟
      */
-    // this.app.tree.emit(RenderEvent.END)
+    this.app.tree.emit(RenderEvent.END, { renderBounds: this.app.tree.canvas.bounds })
   }
 
   private draw(opt: {
