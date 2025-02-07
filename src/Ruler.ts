@@ -1,6 +1,7 @@
 import { ICanvasContext2D, IUI } from '@leafer-ui/interface'
 import { App, LayoutEvent, Leafer, RenderEvent, ResizeEvent } from '@leafer-ui/core'
 import { EditorEvent } from '@leafer-in/editor'
+import _ from 'lodash'
 
 type TAxis = 'x' | 'y';
 type Rect = { left: number; top: number; width: number; height: number }
@@ -29,26 +30,115 @@ export interface ThemeOption {
   highlightColor: string
 }
 
-export interface RulerConfig {
+export interface ConversionFactor {
   /**
-   * 是否启用标尺线
+   * 自定义单位对应的像素数，比如英寸单位：1英寸对应96px，那这里就是96
    */
-  enabled: boolean
+  px: number
+
   /**
-   * 标尺线主题
+   * 缩放倍率，对应缩放比例：[0.02, 0.03, 0.05, 0.1, 0.2, 0.5, 1, 2, 5]
    */
-  theme: string
+  gaps: number[]
+
+  /**
+   * 默认缩放倍率（如果没有匹配到缩放比例对应的倍率，则使用默认值defaultGap）
+   */
+  defaultGap: number
+}
+
+const DEFAULT_CONVERSION_FACTORS: ConversionFactor = {
+  px: 1, // 像素
+  gaps: [5000, 2500, 1000, 500, 200, 100, 50, 20, 10], // 缩放基准间隔
+  defaultGap: 10000 // 默认缩放基准间隔
 }
 
 export interface RulerOptions {
   ruleSize?: number; // 标尺宽高
   fontSize?: number; // 字体大小
-  themes?: Map<string, ThemeOption>; // 主题，默认存在明亮、暗黑主图
+  themes?: { [key: string]: ThemeOption } // 主题，默认存在明亮、暗黑主题
+  conversionFactors?: { [key: string]: ConversionFactor }; // 定义单位转换因子 (每单位对应的像素数)
+}
+
+export interface RulerConfig extends RulerOptions {
+  /**
+   * 是否启用标尺线
+   */
+  enabled?: boolean
+  /**
+   * 标尺线主题
+   */
+  theme?: string
+
+  /**
+   * 标尺单位
+   */
+  unit?: string;
 }
 
 export type HighlightRect = {
   skip?: TAxis
 } & Rect
+
+export const defaultConfig: RulerConfig = {
+  enabled: true,
+  theme: 'light',
+  ruleSize: 20,
+  fontSize: 10,
+  unit: 'px',
+  themes: {
+    light: {
+      backgroundColor: '#fff',
+      textColor: '#444',
+      borderColor: '#ccc',
+      highlightColor: '#165dff3b'
+    },
+    dark: {
+      backgroundColor: '#242424',
+      textColor: '#ddd',
+      borderColor: '#555',
+      highlightColor: 'rgba(22,93,255,0.55)'
+    }
+  },
+  conversionFactors: {
+    // 像素
+    px: {
+      px: 1,
+      gaps: [5000, 2500, 1000, 500, 200, 100, 50, 20, 10],
+      defaultGap: 10000
+    },
+    // 英寸
+    in: {
+      px: 96,
+      gaps: [100, 50, 30, 20, 6, 1, 2, 0.8, 0.5],
+      defaultGap: 1000
+    },
+    // 厘米
+    cm: {
+      px: 96 / 2.54,
+      gaps: [100, 50, 30, 20, 6, 4, 2, 1, 0.5],
+      defaultGap: 1000
+    },
+    // 毫米
+    mm: {
+      px: 96 / 25.4,
+      gaps: [1000, 500, 200, 100, 50, 20, 10, 5, 2],
+      defaultGap: 2000
+    },
+    // 点
+    pt: {
+      px: 96 / 72,
+      gaps: [5000, 2500, 1000, 500, 200, 100, 50, 20, 10],
+      defaultGap: 10000
+    },
+    // 派卡
+    pc: {
+      px: 96 / 6,
+      gaps: [100, 80, 50, 30, 15, 12, 8, 6, 4],
+      defaultGap: 1000
+    }
+  }
+}
 
 export class Ruler {
 
@@ -56,8 +146,7 @@ export class Ruler {
   public readonly rulerLeafer: Leafer
   private readonly contextContainer: ICanvasContext2D
 
-  private options: RulerOptions
-  private config: RulerConfig
+  public config: RulerConfig
 
   /**
    * 选取对象矩形坐标
@@ -69,36 +158,16 @@ export class Ruler {
     y: HighlightRect[]
   }
 
-  constructor(app: App, config?: RulerConfig, options?: RulerOptions) {
+  constructor(app: App, config?: RulerConfig) {
     this.app = app
     this.rulerLeafer = app.addLeafer()
     this.contextContainer = this.rulerLeafer.canvas.context
-    this.options = options || {
-      ruleSize: 20,
-      fontSize: 10,
-      themes: new Map<string, ThemeOption>([
-        ['light', {
-          backgroundColor: '#fff',
-          textColor: '#444',
-          borderColor: '#ccc',
-          highlightColor: '#165dff3b'
-        }],
-        ['dark', {
-          backgroundColor: '#242424',
-          textColor: '#ddd',
-          borderColor: '#555',
-          highlightColor: 'rgba(22,93,255,0.55)'
-        }]
-      ])
-    }
-    this.config = config || { enabled: true, theme: 'light' }
+
+    this.config = _.merge({}, defaultConfig, config)
+
     this.forceRender = this.forceRender.bind(this)
     this.resize = this.resize.bind(this)
     this.enabled = this.config.enabled
-  }
-
-  public changeTheme(value: string) {
-    this.theme = value
   }
 
   public set theme(value: string) {
@@ -116,7 +185,7 @@ export class Ruler {
    * @param theme
    */
   public addTheme(key: string, theme: ThemeOption) {
-    this.options.themes.set(key, theme)
+    this.config.themes[key] = theme
   }
 
   /**
@@ -124,7 +193,34 @@ export class Ruler {
    * @param key
    */
   public removeTheme(key: string) {
-    this.options.themes.delete(key)
+    delete this.config.themes[key]
+  }
+
+
+  public changeTheme(value: string) {
+    this.theme = value
+  }
+
+  /**
+   * 添加单位
+   * @param key
+   * @param conversionFactor
+   */
+  public addUnit(key: string, conversionFactor: ConversionFactor) {
+    this.config.conversionFactors[key] = conversionFactor
+  }
+
+  /**
+   * 删除单位
+   * @param key
+   */
+  public removeUnit(key: string) {
+    delete this.config.conversionFactors[key]
+  }
+
+  public changeUnit(unit: string) {
+    this.config.unit = unit
+    this.forceRender()
   }
 
   public changeEnabled(value: boolean) {
@@ -140,7 +236,7 @@ export class Ruler {
     if (value) {
       this.app.tree.on(LayoutEvent.AFTER, this.forceRender)
       this.app.tree.on(ResizeEvent.RESIZE, this.resize)
-      this.app.editor?.on(EditorEvent.SELECT,this.forceRender)
+      this.app.editor?.on(EditorEvent.SELECT, this.forceRender)
       this.resize()
     } else {
       this.app.tree.off(LayoutEvent.AFTER, this.forceRender)
@@ -175,7 +271,6 @@ export class Ruler {
   }
 
   private render({ ctx }: { ctx: ICanvasContext2D }) {
-
     // 设置画布的矩阵信息（默认会带上屏幕像素比），用于解决屏幕像素比的问题
     this.rulerLeafer.canvas.setWorld({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 })
 
@@ -188,39 +283,39 @@ export class Ruler {
       ctx,
       isHorizontal: true,
       rulerLength: this.getSize().width,
-      startCalibration: -(vpt[4] / vpt[0])
+      startCalibration: -(vpt[4] / vpt[0]),
+      unit: this.config.unit || 'px' // 默认单位为像素
     })
     // 绘制垂直尺子
     this.draw({
       ctx,
       isHorizontal: false,
       rulerLength: this.getSize().height,
-      startCalibration: -(vpt[5] / vpt[3])
+      startCalibration: -(vpt[5] / vpt[3]),
+      unit: this.config.unit || 'px'
     })
     // 绘制标尺底部矩形和文字
-    const themeOption = this.options.themes.get(this.config.theme)
+    const themeOption = this.config.themes[this.config.theme]
     this.darwRect(ctx, {
       left: 0,
       top: 0,
-      width: this.options.ruleSize,
-      height: this.options.ruleSize,
+      width: this.config.ruleSize,
+      height: this.config.ruleSize,
       fill: themeOption.backgroundColor,
       stroke: themeOption.borderColor
     })
 
     this.darwText(ctx, {
-      text: 'px',
-      left: this.options.ruleSize / 2,
-      top: this.options.ruleSize / 2,
+      text: this.config.unit || 'px',
+      left: this.config.ruleSize / 2,
+      top: this.config.ruleSize / 2,
       align: 'center',
       baseline: 'middle',
       fill: themeOption.textColor
     })
 
-    /**
-     * TODO 待官方支持手动触发app canvas渲染的方法后替换下面方法
-     * 临时先这么用，不然拖动frame时标尺层画布渲染会有延迟
-     */
+    // TODO 待官方支持手动触发app canvas渲染的方法后替换下面方法
+    // 临时先这么用，不然拖动frame时标尺层画布渲染会有延迟
     this.app.tree.emit(RenderEvent.END, { renderBounds: this.app.tree.canvas.bounds })
   }
 
@@ -229,18 +324,18 @@ export class Ruler {
     isHorizontal: boolean
     rulerLength: number
     startCalibration: number
+    unit: string
   }) {
-    const { ctx, isHorizontal, rulerLength, startCalibration } = opt
+    const { ctx, isHorizontal, rulerLength, startCalibration, unit } = opt
     const zoom = this.getZoom()
-
-    const gap = this.getGap(zoom)
+    const gapInPx = this.getGap(zoom, unit)
     const unitLength = Math.ceil(rulerLength / zoom)
-    const startValue = Math.floor(startCalibration / gap) * gap
+    const startValue = Math.floor(startCalibration / gapInPx) * gapInPx
     const startOffset = startValue - startCalibration
     const canvasSize = this.getSize()
 
-    const themeOption = this.options.themes.get(this.config.theme)
-    const { ruleSize } = this.options
+    const themeOption = this.config.themes[this.config.theme]
+    const { ruleSize } = this.config
     // 文字顶部偏移
     const padding = 2.5
 
@@ -255,9 +350,9 @@ export class Ruler {
     })
 
     // 标尺刻度线显示
-    for (let pos = 0; pos + startOffset <= unitLength; pos += gap) {
+    for (let pos = 0; pos + startOffset <= unitLength; pos += gapInPx) {
       for (let index = 0; index < 10; index++) {
-        const position = Math.round((startOffset + pos + (gap * index) / 10) * zoom)
+        const position = Math.round((startOffset + pos + (gapInPx * index) / 10) * zoom)
         const isMajorLine = index === 0
         const [left, top] = isHorizontal
           ? [position, isMajorLine ? 0 : ruleSize - 8]
@@ -300,16 +395,16 @@ export class Ruler {
     }
 
     // 标尺文字显示
-    for (let pos = 0; pos + startOffset <= unitLength; pos += gap) {
+    for (let pos = 0; pos + startOffset <= unitLength; pos += gapInPx) {
       const position = (startOffset + pos) * zoom
-      const textValue = (startValue + pos).toString()
+      const textValue = (startValue + pos) / this.convertUnitsToPx(1, unit)
 
       const [left, top, angle] = isHorizontal
         ? [position + 6, padding, 0]
         : [padding, position - 6, -90]
 
       this.darwText(ctx, {
-        text: textValue,
+        text: `${Number(textValue.toFixed(2))}`,
         left,
         top,
         fill: themeOption.textColor,
@@ -319,16 +414,22 @@ export class Ruler {
     // draw end
   }
 
-  private getGap(zoom: number) {
-    const zooms = [0.02, 0.03, 0.05, 0.1, 0.2, 0.5, 1, 2, 5]
-    const gaps = [5000, 2500, 1000, 500, 200, 100, 50, 20, 10]
 
+  private getGap(zoom: number, unit: string): number {
+    // 获取当前单位对应的基准间隔倍率
+    const gaps = this.config.conversionFactors[unit].gaps || DEFAULT_CONVERSION_FACTORS.gaps
+    const base = this.config.conversionFactors[unit].px || DEFAULT_CONVERSION_FACTORS.px
+
+    // 定义缩放比例数组
+    const zooms = [0.02, 0.03, 0.05, 0.1, 0.2, 0.5, 1, 2, 5]
     let i = 0
     while (i < zooms.length && zooms[i] < zoom) {
       i++
     }
-
-    return gaps[i - 1] || 10000
+    return gaps[i - 1] * base || this.config.conversionFactors[unit].defaultGap * base // 如果没有匹配到，返回默认值defaultGap
+  }
+  private convertUnitsToPx(value: number, toUnit: string): number {
+    return value * this.config.conversionFactors[toUnit].px || DEFAULT_CONVERSION_FACTORS.px
   }
 
   private darwRect(

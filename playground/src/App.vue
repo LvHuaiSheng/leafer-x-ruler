@@ -1,11 +1,9 @@
 <script setup lang='ts'>
 
-import { App, Rect, Text, Canvas, Line, RenderEvent } from 'leafer-ui'
+import { App, Rect, Text, Canvas, Line, RenderEvent, Box, ResizeEvent, PropertyEvent } from 'leafer-ui'
 import '@leafer-in/editor'
 import { Ruler } from '../../src'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { EditorEvent } from '@leafer-in/editor'
-// import { Canvas, Line } from '@leafer-ui/core'
 
 let app
 let ruler
@@ -19,8 +17,8 @@ function getRandomColor() {
   }
   return color
 }
+
 let timer = null
-const fps = ref(0)
 onMounted(() => {
   app = new App({
     view: 'canvasRef',
@@ -29,7 +27,18 @@ onMounted(() => {
     editor: {},
     sky: { type: 'draw', usePartRender: false }
   })
-  ruler = new Ruler(app)
+  ruler = new Ruler(app, {
+    unit: 'px',
+    ruleSize:25,
+    conversionFactors: {
+      // 自定义单位cs
+      cs: {
+        px: 2,
+        gaps: [5000, 2500, 1000, 500, 200, 100, 50, 20, 10],
+        defaultGap: 1000
+      }
+    }
+  })
   // 添加自定义主题
   ruler.addTheme('custom1', {
     backgroundColor: '#6cb0ab',
@@ -39,8 +48,9 @@ onMounted(() => {
   })
 
   for (let i = 0; i < 5; i++) {
-    const randomNumber = Math.random() * (300 - 50) + 50
-    const rect = new Rect({
+    let randomNumber = Math.random() * (300 - 50) + 50
+    randomNumber = Number(randomNumber.toFixed(2))
+    const rect = new Box({
       x: randomNumber,
       y: randomNumber,
       width: randomNumber,
@@ -48,11 +58,18 @@ onMounted(() => {
       fill: getRandomColor(),
       editable: true
     })
+    const text = new Text({
+      text: `W:${randomNumber}，H:${randomNumber}`,
+      fill:'#fff'
+    })
+    rect.add(text)
+    rect.on(PropertyEvent.CHANGE, function(e: PropertyEvent) {
+      if (e.attrName === 'width' || e.attrName === 'height') {
+        text.text = `W:${e.target.width}，H:${e.target.height}`
+      }
+    })
     app.tree.add(rect)
   }
-  timer = setInterval(() => {
-    fps.value = app.FPS
-  },500)
 })
 onUnmounted(() => {
   clearInterval(timer)
@@ -64,6 +81,9 @@ onUnmounted(() => {
  */
 const changeTheme = (theme) => {
   ruler.changeTheme(theme)
+}
+const changeUnit = (unit) => {
+  ruler.changeUnit(unit)
 }
 const changeEnabled = () => {
   ruler.enabled = !ruler.enabled
@@ -78,10 +98,22 @@ const changeEnabled = () => {
       <button @click="changeTheme('light')" class='btn'>明亮主题</button>
       <button @click="changeTheme('dark')" class='btn'>暗黑主题</button>
       <div>
-        <button @click="changeTheme('custom1')" class='btn'>自定义主题1</button>
+        <button @click="changeTheme('custom1')" class='btn'>自定义主题示例</button>
       </div>
       <div>
-        <span>FPS：{{fps}}</span>
+        单位：
+        <select @change='changeUnit($event.target.value)' class='unit-box'>
+          <option value='px'>像素(px)</option>
+          <option value='in'>英寸(in)</option>
+          <option value='cm'>厘米(cm)</option>
+          <option value='mm'>毫米(mm)</option>
+          <option value='pt'>点(pt)</option>
+          <option value='pc'>派卡(pc)</option>
+          <option value='cs'>自定义单位(cs)</option>
+        </select>
+      </div>
+      <div>
+        <span></span>
       </div>
     </div>
     <div ref='canvasRef' id='canvasRef'></div>
@@ -108,5 +140,9 @@ const changeEnabled = () => {
 #canvasRef {
     width: 100%;
     height: calc(100% - 30px);
+}
+
+.unit-box {
+    height: 25px;
 }
 </style>
