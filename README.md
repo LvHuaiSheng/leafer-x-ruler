@@ -2,6 +2,8 @@
 
 标尺线插件
 
+支持不同单位px、cm、in、pt、pc、mm转换， 以及自定义单位
+
 ## show
 
 ![cover](https://github.com/LvHuaiSheng/leafer-x-ruler/blob/master/playground/src/assets/cover2.png?raw=true)
@@ -12,7 +14,7 @@
 #### 如何从1.x升级到2.x
 
 > 1. 只需将1.x中自定义的config和options配置项合并即可，如无自定义配置项 那么可直接升级，参考下方配置
-> 2. 2.x版本优化了`themes`初始化配置项，将Map对象改为普通对象，初始化速度更快，自定义主题更便捷
+> 2. 2.x版本调整了`themes`初始化配置项，将Map对象改为普通对象，初始化速度更快，自定义主题更便捷
 ```js
 
 // -- 1.x版本 --
